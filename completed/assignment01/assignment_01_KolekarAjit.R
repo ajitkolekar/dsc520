@@ -1,6 +1,6 @@
 # Assignment: ASSIGNMENT 1
 # Name: Kolekar, Ajit
-# Date: 2020-09-03
+# Date: 2020-09-02
 
 ## Create a numeric vector with the values of 3, 2, 1 using the `c()` function
 ## Assign the value to a variable named `num_vector`
