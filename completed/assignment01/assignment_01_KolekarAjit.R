@@ -126,10 +126,10 @@ factor_recommendations_vector <- factor(
 summary(factor_recommendations_vector)
 
 ## Using the built-in `mtcars` dataset, view the first few rows using the `head()` function
-head(mtcars, 6)
+head(mtcars)
 
 ## Using the built-in mtcars dataset, view the last few rows using the `tail()` function
-tail(mtcars, 6)
+tail(mtcars)
 
 ## Create a dataframe called characters_df using the following information from LOTR
 name <- c("Aragon", "Bilbo", "Frodo", "Galadriel", "Sam", "Gandalf", "Legolas", "Sauron", "Gollum")
@@ -143,10 +143,10 @@ characters_df <- data.frame(name, race, in_fellowship, ring_bearer, age)
 ## Sorting the characters_df by age using the order function and assign the result to the sorted_characters_df
 sorted_characters_df <- characters_df[order(age),]
 ## Use `head()` to output the first few rows of `sorted_characters_df`
-head(sorted_characters_df, 6)
+head(sorted_characters_df)
 
 ## Select all of the ring bearers from the dataframe and assign it to ringbearers_df
 ringbearers_df <- characters_df[characters_df$ring_bearer == TRUE,]
 ## Use `head()` to output the first few rows of `ringbearers_df`
-head(ringbearers_df, 6)
+head(ringbearers_df)
 
