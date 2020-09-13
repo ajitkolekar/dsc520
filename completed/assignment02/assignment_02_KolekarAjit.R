@@ -1,6 +1,6 @@
 # Assignment: ASSIGNMENT 2
 # Name: Kolekar, Ajit
-# Date: 2010-09-11
+# Date: 2010-09-13
 
 ## install.packages("readxl")
 ## install.packages("DBI")
@@ -21,7 +21,7 @@ setwd("C:/Users/shilp/Documents/GitHub/dsc520")
 
 ## Load the file `data/tidynomicon/person.csv` to `person_df1` using `read.csv`
 ## Examine the structure of `person_df1` using `str()`
-person_df1 <- read.csv(file = 'data/tidynomicon/person.csv')
+person_df1 <- read.csv(file = 'data/tidynomicon/person.csv', stringsAsFactors = TRUE)
 str(person_df1)
 
 ## R interpreted names as factors, which is not the behavior we want
