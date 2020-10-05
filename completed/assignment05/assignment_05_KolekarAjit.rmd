@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Assignment description
 **As a data science intern with newly learned knowledge in skills in statistical correlation and R programming, you will analyze the results of a survey recently given to college students. You learn that the research question being investigated is: “Is there a significant relationship between the amount of time spent reading and the time spent watching television?” You are also interested if there are other significant relationships that can be discovered? The survey data is located in the StudentSurvey.csv file.**
 
-```{r include=FALSE}
+```{r}
 students_df <- read.csv("C:/Users/ShilpaandAjit/Documents/GitHub/dsc520/data/student-survey.csv")
 ```
 
