@@ -1,0 +1,220 @@
+---
+title: "Exercise 12: Housing Data"
+author: "Kolekar, Ajit"
+date: October 18th, 2020
+output:
+  
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment description
+**Work individually on this assignment. You are encouraged to collaborate on ideas and strategies pertinent to this assignment. Data for this assignment is focused on real estate transactions recorded from 1964 to 2016 and can be found in Week 6 Housing.xlsx. Using your skills in statistical correlation, multiple regression and R programming, you are interested in the following variables: Sale Price and several other possible predictors. Using your ‘clean’ data set from the previous week complete the following:**
+
+```{r}
+library('readxl')
+housing_df <- read_excel("C:/Users/Shilp/Documents/GitHub/dsc520/data/week-7-housing.xlsx")
+```
+
+## Question a
+**Explain why you chose to remove data points from your ‘clean’ dataset.**
+
+```{r}
+str(housing_df)
+summary(housing_df)
+new_housing_df <- housing_df[(is.na(housing_df$sale_warning))  & (housing_df$bedrooms != 0), ]
+new_housing_df$`Sale Date` <- NULL
+new_housing_df$sale_warning <- NULL
+new_housing_df$sitetype <- NULL
+new_housing_df$addr_full <- NULL
+new_housing_df$ctyname <- NULL
+new_housing_df$postalctyn <- NULL
+new_housing_df$current_zoning <- NULL
+new_housing_df$prop_type <- NULL
+summary(new_housing_df)
+```
+
+There are certain data points in the data set that can skew the data and would make the linear models provide inaccurate outputs. Identifying these data points, such as outliers, is critical for successful data analysis. 
+
+Following are the variables I chose to clean/remove and the reasoning why.
+
+* Removed data points where bedrooms = 0, since they appeared to be lands and not houses.
+* Removed data points where sale_warning is not blank, since sale warning could have impacted the sale price and thus could skew the data.
+* Removed following variables defined as char so that correlation between variables can be determined: Sale Date, sale_warning, sitetype, addr_full, ctyname, postalctyn, current_zoning, and prop_type.
+* It is difficult to determine the impacts of other numeric variables unless the meaning of each code is understood, which is not available.
+
+The data set originally included 12865 rows and after cleaning the data set reduced to 10556 rows. 
+
+
+## Question b
+**Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price and several additional predictors of your choice. Explain the basis for your additional predictor selections.**
+
+```{r}
+cor(new_housing_df)
+
+housing_simple_lm <- lm(formula = new_housing_df$`Sale Price` ~ new_housing_df$sq_ft_lot, data = new_housing_df)
+
+housing_multi_lm <- lm(formula = new_housing_df$`Sale Price` ~ new_housing_df$sq_ft_lot + new_housing_df$building_grade + new_housing_df$square_feet_total_living + new_housing_df$bedrooms + new_housing_df$bath_full_count + new_housing_df$bath_half_count + new_housing_df$year_built, data = new_housing_df)
+```
+
+After calculating the correlation between sale price and other variables, I noticed that several variables had significant relationship with sale price. I used all these variables as predictors. Their correlation coefficient is more than 0.20 in either positive or negative direction. The predictors I chose are sq_ft_lot, building_grade, square_feet_total_living, bedrooms, bath_full_count, bath_half_count, and year_built.
+
+
+## Question c
+**Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics? Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?**
+
+```{r}
+summary(housing_simple_lm)
+summary(housing_multi_lm)
+```
+
+R2 value describes whether the regression model is successful in predicting the outcome. Adjusted R2 is used to compare with R2 to determine whether the sample was a good representation of the population. If the difference between R2 and adjusted R2 values is small, then that would indicate that the sample is a good representation of population. 
+
+For the simple regression model, the value of R2 is 0.05765. This indicates that the sq_ft_lot accounted for only 5.77% of the variation in sale price. The value of adjusted R2 is 0.5756 which is very close to R2 value, and that indicates that the sample is a good representation of population.
+
+For the multiple regression model, the value of R2 is 0.5498. This indicates that the the model with multiple predictors accounted for 54.98% of the variation in sale price. The value of adjusted R2 is 0.5495 which is very close to R2 value, and that indicates that the sample is a good representation of population.
+
+The prediction percentage went up from 5.77% to 54.98% which indicates that the sale price can be better predicted with the multiple predictors than only with sq_ft_lot variable,
+
+## Question d
+**Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?**
+
+```{r}
+library('QuantPsyc')
+lm.beta(housing_multi_lm)
+
+```
+
+The beta value tells us the number of standard deviations by which the outcome will change as a result of one standard deviation of change in the predictor. Based on the standardized beta values for predictors, it looks like building_grader and square_feet_total_living are the only important predictors since they have comparable degree of importance in the model. Other predictors (sq_ft_lot, bedrooms, bath_full_count, bath_half_count, and year_built) do not have comparable degree of importance.
+
+## Question e
+**Calculate the confidence intervals for the parameters in your model and explain what the results indicate.**
+
+```{r}
+confint(housing_multi_lm)
+```
+
+A good model would have small confidence interval which indicates that the value of beta in the sample is close to the true value of the beta in the population. The positive or negative sign indicates the direction of the relationship between the predictor and the outcome. If the confidence interval crosses zero, then that is a sign of a very bad model.
+
+sq_ft_lot, building_grade, square_feet_total_living, bedrooms, and year_built have the confidence interval on one side of zero, which is good. sq_ft_lot and square_feet_total_living have tight gap, so their estimates seem to be more likely true representatives of population. building_grade, bedrooms, and year_built are less representative of the population.
+
+bath_full_count and bath_half_count are bad predictors in the model since the confidence interval for them crosses zero.
+
+
+## Question f
+**Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.**
+
+```{r}
+anova(housing_simple_lm, housing_multi_lm)
+```
+
+F(6, 10548) = 1921.8 with p < 0.001. This indicates that the multiple regression model significantly improved the fit of the model. 
+
+## Question g
+**Perform casewise diagnostics to identify outliers and/or influential cases, storing each function's output in a dataframe assigned to a unique variable name.**
+
+```{r}
+# outliers
+new_housing_df$residuals <- resid(housing_multi_lm)
+new_housing_df$standardized.residuals <- rstandard(housing_multi_lm)
+new_housing_df$studentized.residuals <- rstudent(housing_multi_lm)
+
+# Influential cases
+new_housing_df$cooks.distance <- cooks.distance(housing_multi_lm)
+new_housing_df$dfbeta <- dfbeta(housing_multi_lm)
+new_housing_df$dffit <- dffits(housing_multi_lm)
+new_housing_df$leverage <- hatvalues(housing_multi_lm)
+new_housing_df$covariance.ratios <- covratio(housing_multi_lm)
+
+summary(new_housing_df)
+```
+
+
+## Question h
+**Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.**
+  
+```{r}
+new_housing_df$large.residual <- new_housing_df$standardized.residuals > 2 | new_housing_df$standardized.residuals < -2
+```
+
+## Question i
+**Use the appropriate function to show the sum of large residuals.**
+
+```{r}
+sum(new_housing_df$large.residual)
+```
+
+
+## Question j
+**Which specific variables have large residuals (only cases that evaluate as TRUE)?**
+
+```{r}
+new_housing_df[new_housing_df$large.residual, c("Sale Price", "building_grade", "square_feet_total_living", "bedrooms", "bath_full_count", "bath_half_count", "year_built", "sq_ft_lot", "standardized.residuals")]
+```
+
+## Question k
+**Investigate further by calculating the leverage, cooks distance, and covariance rations. Comment on all cases that are problematics.**
+
+```{r}
+new_housing_df[new_housing_df$large.residual, c("cooks.distance", "leverage", "covariance.ratios")]
+```
+
+There is 1 problematic record out of 356 records since cooks distance is greater than 1 for the problematic record and is less than 1 for the remaining records. When I looked at the data for that record, the sale price was only $14,000 but other factors indicated that the price is too low. The square_feet_total_living is 8750, there are 5 bedrooms, 2 full bathrooms, 2 half bathrooms, and the sq_ft_lot is 1631322. The standardized residual is too high (-13.643701).
+
+## Question l
+**Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.**
+
+```{r}
+library("car")
+durbinWatsonTest(housing_multi_lm)
+```
+The assumption of independence can be tested using Durbin-Watson Test. The Durbin-Watson statistic should be between 1 and 3 and should be closer to 2. In this case, it is 1.472023 which means that the assumption of independence has met. The p-value is 0 which is a good for the model since it is less than 0.05.  
+
+## Question m
+**Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.**
+
+```{r}
+print("vif")
+vif(housing_multi_lm)
+
+print("1/vif")
+1/vif(housing_multi_lm)
+
+print("mean")
+mean(vif(housing_multi_lm))
+```
+
+If the largest VIF is greater than 10, then there is a cause for concern. In this case, the largest VIF 3.59, so there are no concerns.
+If the tolerance (1/vif) is below 0.2, then its a potential problem. In this case, the smallest tolerance value is 0.27, so there are no concerns.
+If the average (mean) is substantially greater than 1, then the regression may be biased. In this case, it is not too far from 1, so there are no concerns. 
+
+
+## Question n
+**Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.**
+
+```{r}
+plot(housing_multi_lm)
+hist(new_housing_df$studentized.residuals)
+```
+
+The Residuals vs Fitted graph above looks like a random array of dots evenly dispersed around zero. It does not funnel out, so there is no heteroscedasticity in the data. There is no curve in the graph, so it is not violating any assumptions of linearity.
+
+The Q-Q plot should show deviations from normality. In the plot above, it deviates from both the ends of the line, which indicates deviation of normality at the extreme values.
+
+The histogram indicates that the distribution is roughly normal or skewed a little to right.
+
+
+## Question o
+**Overall, is this regression model unbiased? If an unbiased regression model, what does this tell us about the sample vs. the entire population model?**
+
+While working on question k, I found a problematic record that skewed the data. The record had cooks distance greater than 1. When I looked at the data for that record, the sale price was only $14,000 but other factors indicated that the price is too low. The square_feet_total_living is 8750, there are 5 bedrooms, 2 full bathrooms, 2 half bathrooms, and the sq_ft_lot is 1631322. The standardized residual is too high (-13.643701).
+
+The Q-Q plot also showed significant curves at the ends which could indicate that there are extreme values in the data set that make the model deviate from normality. 
+
+Based on these observations, I feel that the regression model is biased. 
+
+The extreme values (outliers) need to be removed from the data set. It would also be beneficial to have the meaning of the codes of each variable available so that analysis can be done on them. The model should be re-created after the problematic record and outliers removed from the data set. 
+
