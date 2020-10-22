@@ -1,0 +1,60 @@
+---
+title: "Exercise 13: Fit a Logistic Regression Model to the Thoracic Surgery Binary Dataset"
+author: "Kolekar, Ajit"
+date: October 21st, 2020
+output:
+  
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment description
+**For this problem, you will be working with the thoracic surgery data set from the University of California Irvine machine learning repository. This dataset contains information on life expectancy in lung cancer patients after surgery.The underlying thoracic surgery data is in ARFF format. This is a text-based format with information on each of the attributes. You can load this data using a package such as foreign or by cutting and pasting the data section into a CSV file.**
+
+```{r}
+library('foreign')
+surgery_df <- read.arff("C:/Users/Shilp/Documents/GitHub/dsc520/data/ThoraricSurgery.arff")
+summary(surgery_df)
+```
+
+## Question a
+**Fit a binary logistic regression model to the data set that predicts whether or not the patient survived for one year (the Risk1Y variable) after the surgery. Use the glm() function to perform the logistic regression. See Generalized Linear Models for an example. Include a summary using the summary() function in your results.**
+
+```{r}
+surgery_glm <- glm(Risk1Yr ~ DGN + PRE4 + PRE5 + PRE6 + PRE7 + PRE8 + PRE9 + PRE10 + PRE11 + PRE14 + PRE17 + PRE19 + PRE25 + PRE30 + PRE32 + AGE, data=surgery_df, family = binomial)
+summary(surgery_glm)
+```
+
+## Question b
+**According to the summary, which variables had the greatest effect on the survival rate?**
+
+According to the summary, following variables were statistically significant: PRE9T, PRE14OC14, PRE17T, and PRE30T. Following variable could be considered statistically significant based on the p-value: PRE14OC13.
+
+According to Thoracic Surgery Data Data Set: 
+
+* PRE9T indicates that the patient had Dyspnoea before surgery.
+* PRE14OC14 indicates the largest size of the tumor. 
+* PRE17T indicates that the patient had Type 2 Diabetes.
+* PRE30T indicates that patient used to smoke. 
+* PRE14OC13 indicates the second largest size of the tumor. 
+
+All these variables increased the risk and the patient did not survive for one year after the surgery.
+
+
+## Question c
+**To compute the accuracy of your model, use the dataset to predict the outcome variable. The percent of correct predictions is the accuracy of your model. What is the accuracy of your model?**
+
+```{r}
+res <- predict(surgery_glm, type="response")
+
+confmatrix <- table(Actual_Value = surgery_df$Risk1Yr, Predicted_Value = res > 0.5)
+confmatrix
+
+accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
+accuracy
+```
+The accuracy of the model is 83.62%.
+
