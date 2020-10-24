@@ -1,0 +1,86 @@
+---
+title: "Exercise 14: Fit a Logistic Regression Model to Previous Dataset"
+author: "Kolekar, Ajit"
+date: October 23rd, 2020
+output:
+  
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment description
+**Fit a logistic regression model to the binary-classifier-data.csv dataset from the previous assignment.**
+
+```{r}
+binary_df <- read.csv("C:/Users/Shilp/Documents/GitHub/dsc520/data/binary-classifier-data.csv")
+
+
+# Split data to use 80% of data to train the model and 20% of data to test the model
+data_split <- sample(1:nrow(binary_df), 0.8 * nrow(binary_df))
+train <- binary_df[data_split,]
+test <- binary_df[-data_split,]
+
+nrow(binary_df)
+nrow(train)
+nrow(test)
+
+```
+
+## Question a
+**What is the accuracy of the logistic regression classifier?**
+
+```{r}
+binary_glm <- glm(label ~ x + y, data=binary_df, family = binomial)
+summary(binary_glm)
+
+res <- predict(binary_glm, type="response")
+
+confmatrix <- table(Actual_Value = binary_df$label, Predicted_Value = res > 0.5)
+confmatrix
+
+accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
+accuracy
+```
+
+The accuracy of the model using logistic regression classifier is 58.34%.
+
+## Question b
+**How does the accuracy of the logistic regression classifier compare to the nearest neighbors algorithm?**
+
+
+```{r}
+# extract 1st column of train dataset because it will be used as 'cl' argument in knn function.
+target_category <- binary_df[data_split,1]
+
+# extract 1st column if test dataset to measure the accuracy
+test_category <- binary_df[-data_split,1]
+
+# load the package class
+library(class)
+
+# run knn function, using k = sqrt(nrow(binary_df))
+test_pred <- knn(train,test,cl=target_category,k=39)
+
+# create confusion matrix
+confmatrix <- table(test_category,test_pred)
+confmatrix
+
+accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
+accuracy
+```
+
+The accuracy of the model using neighbor's algorithm is 98.33%
+
+
+## Question c
+**Why is the accuracy of the logistic regression classifier different from that of the nearest neighbors?**
+
+Logistic regression is not a regression model, it is a classification model. It works similar to linear regression and calculates linear output. It cannot be applied to non-linear classification problems. Colinearity and outliers tamper the accuracy of Logistic Regression model. K nearest neighbors (KNN) supports non-linear solutions. Based on the accuracy of both models, it appears that the reason why KNN provided better accuracy than Logistic Regression is because the data set classification could be non-linear.  
+
+
+
+
+
