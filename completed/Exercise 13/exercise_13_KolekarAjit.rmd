@@ -1,7 +1,7 @@
 ---
 title: "Exercise 13: Fit a Logistic Regression Model to the Thoracic Surgery Binary Dataset"
 author: "Kolekar, Ajit"
-date: October 21st, 2020
+date: October 25th, 2020
 output:
   
   word_document: default
@@ -48,13 +48,26 @@ All these variables increased the risk and the patient did not survive for one y
 **To compute the accuracy of your model, use the dataset to predict the outcome variable. The percent of correct predictions is the accuracy of your model. What is the accuracy of your model?**
 
 ```{r}
-res <- predict(surgery_glm, type="response")
 
-confmatrix <- table(Actual_Value = surgery_df$Risk1Yr, Predicted_Value = res > 0.5)
+data_split <- sample(1:nrow(surgery_df), 0.8 * nrow(surgery_df))
+train <- surgery_df[data_split,]
+test <- surgery_df[-data_split,]
+
+nrow(surgery_df)
+nrow(train)
+nrow(test)
+
+
+res <- predict(surgery_glm, test, type="response")
+
+res <- predict(surgery_glm, train, type="response")
+
+
+confmatrix <- table(Actual_Value = train$Risk1Yr, Predicted_Value = res > 0.5)
 confmatrix
 
 accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
 accuracy
 ```
-The accuracy of the model is 83.62%.
+The accuracy of the model is 84.31%.
 
