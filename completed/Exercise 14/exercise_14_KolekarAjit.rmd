@@ -1,7 +1,7 @@
 ---
 title: "Exercise 14: Fit a Logistic Regression Model to Previous Dataset"
 author: "Kolekar, Ajit"
-date: October 23rd, 2020
+date: October 25th, 2020
 output:
   
   word_document: default
@@ -36,16 +36,17 @@ nrow(test)
 binary_glm <- glm(label ~ x + y, data=binary_df, family = binomial)
 summary(binary_glm)
 
-res <- predict(binary_glm, type="response")
+res <- predict(binary_glm, test, type="response")
+res <- predict(binary_glm, train, type="response")
 
-confmatrix <- table(Actual_Value = binary_df$label, Predicted_Value = res > 0.5)
+confmatrix <- table(Actual_Value = train$label, Predicted_Value = res > 0.5)
 confmatrix
 
 accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
 accuracy
 ```
 
-The accuracy of the model using logistic regression classifier is 58.34%.
+The accuracy of the model using logistic regression classifier is 59.27%.
 
 ## Question b
 **How does the accuracy of the logistic regression classifier compare to the nearest neighbors algorithm?**
@@ -72,7 +73,7 @@ accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
 accuracy
 ```
 
-The accuracy of the model using neighbor's algorithm is 98.33%
+The accuracy of the model using neighbor's algorithm is 96.67%
 
 
 ## Question c
